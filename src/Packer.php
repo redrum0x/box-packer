@@ -138,6 +138,45 @@ class Packer
     }
 
     /**
+     * Метод аналогичен pack(), но выходит после первого не вместившегося товара,
+     * тот случай когда важно понять влезут ли все товары
+     * @return PackingResult
+     * @throws InvalidPackingScenarioError
+     */
+    public function packMinimum()
+    {
+        if (!$this->solids) {
+            throw new InvalidPackingScenarioError('There are no items to pack. Use setItems or addItem to add items.');
+        }
+
+        if (!$this->containers) {
+            throw new InvalidPackingScenarioError('There are no containers. Use setContainers or addContainer to add containers');
+        }
+
+        $this->sortObjects($this->solids);
+        $this->sortObjects($this->containers);
+
+        $notPacked = $this->solids;
+        foreach ($notPacked as $key => $solid) {
+            foreach ($this->containers as $container) {
+                if ($container->addSolid($solid)) {
+                    unset($notPacked[$key]);
+                    break;
+                } else {
+                    break 2;
+                }
+            }
+        }
+
+        return new PackingResult($this->containers, array_values($notPacked));
+    }
+
+    public function getContainers()
+    {
+        return $this->containers;
+    }
+
+    /**
      * Sort items or containers by descending volume, then longest edge.
      *
      * @param $objects

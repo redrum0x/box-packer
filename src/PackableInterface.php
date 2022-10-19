@@ -23,4 +23,12 @@ interface PackableInterface
 
     public function setWidth($width): PackableInterface;
 
+    public function getX();
+
+    public function setX($x): PackableInterface;
+
+    public function getY();
+
+    public function setY($y): PackableInterface;
+
 }

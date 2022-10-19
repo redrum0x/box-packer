@@ -22,6 +22,10 @@ trait ExtensionTrait
      */
     protected $width;
 
+    protected ?int $x = null;
+
+    protected ?int $y = null;
+
     /**
      * @return array
      */
@@ -100,6 +104,42 @@ trait ExtensionTrait
     public function getWidth()
     {
         return $this->width;
+    }
+
+    /**
+     * @param $x
+     * @return PackableInterface
+     */
+    public function setX($x): PackableInterface
+    {
+        $this->x = $x;
+        return $this;
+    }
+
+    /**
+     * @param $y
+     * @return PackableInterface
+     */
+    public function setY($y): PackableInterface
+    {
+        $this->y = $y;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getX()
+    {
+        return $this->x;
+    }
+
+    /**
+     * @return int
+     */
+    public function getY()
+    {
+        return $this->y;
     }
 
     /**

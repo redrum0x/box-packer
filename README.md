@@ -71,7 +71,7 @@ In the example above, packable items are represented by the `Solid` class. Any c
 can be run through the Packer.
 
 ## Requirements
-* PHP version 5.6 or higher
+* PHP version 8.0 or higher
 
 ## License
 NAWebCo\BoxPacker is MIT-licensed.

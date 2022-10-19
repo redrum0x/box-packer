@@ -10,7 +10,7 @@ class PackingResult
     /**
      * @var Container[]
      */
-    protected $containers = [];
+    public $containers = [];
 
     /**
      * @var Container[]

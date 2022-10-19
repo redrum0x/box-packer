@@ -13,7 +13,7 @@ class Container implements PackableInterface, SolidInterface, JsonSerializable
     /**
      * @var ContainerLevel[]
      */
-    protected $lowerLevels = [];
+    public $lowerLevels = [];
 
     /**
      * @var float
@@ -23,7 +23,7 @@ class Container implements PackableInterface, SolidInterface, JsonSerializable
     /**
      * @var ContainerLevel
      */
-    protected $topLevel;
+    public $topLevel;
 
     /**
      * SolidContainer constructor.

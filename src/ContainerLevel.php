@@ -1,4 +1,5 @@
 <?php
+
 namespace NAWebCo\BoxPacker;
 
 use \InvalidArgumentException;
@@ -20,7 +21,7 @@ class ContainerLevel
     /**
      * @var SolidInterface[]
      */
-    protected $packedSolids = [];
+    public $packedSolids = [];
 
     /**
      * @var SolidInterface[]
@@ -37,8 +38,8 @@ class ContainerLevel
         $this->width = (float)$width;
         $this->length = (float)$length;
 
-        if( ($width * $length) <= 0 ){
-            throw new \InvalidArgumentException( sprintf('Dimensions must both be greater than 0. %f, %f provided.', $width, $length ));
+        if (($width * $length) <= 0) {
+            throw new \InvalidArgumentException(sprintf('Dimensions must both be greater than 0. %f, %f provided.', $width, $length));
         }
 
         $this->spaces = [new Solid($width, $length)];
@@ -50,7 +51,7 @@ class ContainerLevel
      */
     public function addSolid(SolidInterface $solid)
     {
-        if( $this->containers ){
+        if ($this->containers) {
             return $this->attemptToAddToContainers($solid);
         }
 
@@ -73,7 +74,7 @@ class ContainerLevel
         $this->packedSolids = [];
 
 
-        foreach( $items as $solid){
+        foreach ($items as $solid) {
             $this->addSolid($solid);
         }
         return $this;
@@ -87,14 +88,14 @@ class ContainerLevel
      */
     public function removeSolid($id)
     {
-        if( array_key_exists($id, $this->packedSolids)){
+        if (array_key_exists($id, $this->packedSolids)) {
             unset($this->packedSolids[$id]);
             $this->repack();
             return true;
         }
 
-        foreach( $this->containers as $container ){
-            if( $container->removeSolid($id) ){
+        foreach ($this->containers as $container) {
+            if ($container->removeSolid($id)) {
                 $this->repack();
                 return true;
             }
@@ -109,8 +110,8 @@ class ContainerLevel
     public function getContentsCount()
     {
         $count = count($this->packedSolids);
-        if( $this->containers ){
-            foreach( $this->containers as $container ){
+        if ($this->containers) {
+            foreach ($this->containers as $container) {
                 /** @var Container $container */
                 $count += $container->getContentsCount();
             }
@@ -135,10 +136,10 @@ class ContainerLevel
     public function getContents()
     {
         $packed = $this->packedSolids;
-        if( $this->containers ){
-            foreach( $this->containers as $container ){
+        if ($this->containers) {
+            foreach ($this->containers as $container) {
                 /** @var Container $container */
-                $packed = array_merge( $packed, $container->getContents());
+                $packed = array_merge($packed, $container->getContents());
             }
         }
 
@@ -157,7 +158,7 @@ class ContainerLevel
      */
     protected function calculateNewSpaces(SolidInterface $item, SolidInterface $area)
     {
-        if( !$area->canContainBaseWithoutXOrYAxisRotation($item) ){
+        if (!$area->canContainBaseWithoutXOrYAxisRotation($item)) {
             throw new InvalidArgumentException('Item cannot fit in the container.');
         }
 
@@ -175,17 +176,20 @@ class ContainerLevel
             return [];
         }
 
-        if( $widthDiff == 0 ){
-            return [new Solid($lengthDiff, $item->getWidth())];
+        $x = $area->x ?? 0;
+        $y = $area->y ?? 0;
+
+        if ($widthDiff == 0) {
+            return [new Solid($lengthDiff, $item->getWidth(), 0, null, $area->getWidth() - $area->getWidth() + $x, $area->getLength() - $lengthDiff + $y)];
         }
 
-        if ( $lengthDiff == 0) {
-            return [new Solid($widthDiff, $item->getLength())];
+        if ($lengthDiff == 0) {
+            return [new Solid($widthDiff, $item->getLength(), 0, null, $area->getWidth() - $widthDiff + $x, $area->getLength() - $lengthDiff - $item->getLength() + $y)];
         }
 
         return [
-            new Solid( $lengthDiff, $area->getWidth()),
-            new Solid( $widthDiff, $item->getLength())
+            new Solid($lengthDiff, $area->getWidth(), 0, null, $area->getWidth() - $area->getWidth() + $x, $area->getLength() - $lengthDiff + $y),
+            new Solid($widthDiff, $item->getLength(), 0, null, $area->getWidth() - $widthDiff + $x, $area->getLength() - $lengthDiff - $item->getLength() + $y)
         ];
     }
 
@@ -195,12 +199,12 @@ class ContainerLevel
      */
     protected function attemptToAddToContainers(SolidInterface $solid)
     {
-        if( !$this->containers ){
+        if (!$this->containers) {
             return false;
         }
 
-        foreach( $this->containers as $container ){
-            if( $container->addSolid($solid) ){
+        foreach ($this->containers as $container) {
+            if ($container->addSolid($solid)) {
                 return true;
             }
         }
@@ -215,16 +219,16 @@ class ContainerLevel
     {
         $viableSpaceKey = $this->getKeyOfSmallestViableSpace($solid);
 
-        if( $viableSpaceKey === null ){
-            if( count($this->packedSolids) === 0 ){
+        if ($viableSpaceKey === null) {
+            if (count($this->packedSolids) === 0) {
                 return false;
             }
 
             // Create containers and try again
-            if( !$this->containers ){
+            if (!$this->containers) {
                 $this->initContainers();
 
-                if( !$this->containers ){
+                if (!$this->containers) {
                     // There were no spaces (including above packed items) to make into containers.
                     return false;
                 }
@@ -247,7 +251,7 @@ class ContainerLevel
     protected function initContainers()
     {
         $this->containers = $this->getSpacesAbovePlacedSolidsAsContainers();
-        foreach( $this->spaces as $space ){
+        foreach ($this->spaces as $space) {
             $this->containers[] = new Container(
                 $space->getWidth(),
                 $space->getLength(),
@@ -264,7 +268,7 @@ class ContainerLevel
      */
     protected function getKeyOfSmallestViableSpace(SolidInterface $solid)
     {
-        if( !$this->spaces ){
+        if (!$this->spaces) {
             return null;
         }
 
@@ -293,8 +297,18 @@ class ContainerLevel
         // Rework open areas
         $space = $this->spaces[$spaceKey];
         unset($this->spaces[$spaceKey]);
-        $this->spaces = array_merge($this->spaces, $this->calculateNewSpaces($solid, $space));
+
+        $newSpaces = $this->calculateNewSpaces($solid, $space);
+        $this->spaces = array_merge($this->spaces, $newSpaces);
         $this->sortSolids($this->spaces);
+
+        if ($space->getX() === null) {
+            $solid->setX(0);
+            $solid->setY(0);
+        } else {
+            $solid->setX($space->getX());
+            $solid->setY($space->getY());
+        }
 
         $this->packedSolids[$solid->getId()] = $solid;
     }
@@ -304,12 +318,13 @@ class ContainerLevel
      *
      * @return ContainerLevel[]
      */
-    protected function getSpacesAbovePlacedSolidsAsContainers()
+    protected
+    function getSpacesAbovePlacedSolidsAsContainers()
     {
         $spaces = [];
-        foreach($this->packedSolids as $solid ){
+        foreach ($this->packedSolids as $solid) {
             $openHeight = $this->getContentsMaxHeight() - $solid->getHeight();
-            if( $openHeight > 0 ){
+            if ($openHeight > 0) {
                 $spaces[] = new Container(
                     $solid->getWidth(),
                     $solid->getLength(),
@@ -324,7 +339,8 @@ class ContainerLevel
      * Sort spaces by width (smallest to largest). If widths are equal, sort by length (smallest to largest).
      * @param $solids
      */
-    protected function sortSolids( &$solids )
+    protected
+    function sortSolids(&$solids)
     {
         usort($solids, function ($a, $b) {
             /** @var SolidInterface $a */

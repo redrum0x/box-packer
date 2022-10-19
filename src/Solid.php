@@ -9,17 +9,20 @@ class Solid implements PackableInterface, SolidInterface, JsonSerializable
     use DescribableTrait;
     use ObjectReferenceTrait;
 
+
     /**
      * @param float $width
      * @param float $length
      * @param float $height
      * @param null $description
      */
-    public function __construct($width, $length, $height = 0.0, $description = null)
+    public function __construct($width, $length, $height = 0.0, $description = null, $x = null, $y = null)
     {
         $this->setId(uniqid());
         $this->setDimensions( (float)$width, (float)$length, (float)$height);
         $this->description = $description;
+        $this->x = $x;
+        $this->y = $y;
 
         $this->applyStandardOrientation();
 

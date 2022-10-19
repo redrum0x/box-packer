@@ -34,4 +34,8 @@ interface SolidInterface
     public function rotateZ();
 
     public function toArray();
+
+    public function getX();
+
+    public function getY();
 }
